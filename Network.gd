@@ -4,7 +4,8 @@ extends Node
 const _PORT := 34500
 
 var peers := []
-var lobby_list := [["", "", 0, 0, 0], ["", "", 0, 0, 0]]
+var default_lobby := ["", "", 0, 0, 12, 0]
+var lobby_list := []
 
 
 func _ready() -> void:
@@ -25,8 +26,15 @@ func _ready() -> void:
 		get_tree().quit()
 
 
-master func get_lobby_list() -> void:
+master func send_lobby_list() -> void:
 	rpc_id(get_tree().get_rpc_sender_id(), "update_lobby_list", lobby_list)
+
+
+master func create_new_lobby(new_lobby_name) -> void:
+	var new_lobby = default_lobby.duplicate()
+	new_lobby[0] = new_lobby_name
+	lobby_list.append(new_lobby)
+	rpc("update_lobby_list", lobby_list)
 
 
 #
@@ -40,4 +48,3 @@ func _peer_connected(new_peer_id : int) -> void:
 func _peer_disconnected(dead_peer_id : int) -> void:
 	print("Peer Disconnected: ", str(dead_peer_id))
 	peers.erase(dead_peer_id)
-	print(peers)
